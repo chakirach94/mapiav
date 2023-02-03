@@ -2,10 +2,7 @@ from flask import Flask, render_template
 import folium
 from folium.plugins import FloatImage
 from folium import plugins
-import ee
-import os
 import geemap.foliumap as geemap
-import ee
 from folium.plugins import FloatImage
 import numpy as np
 from folium import plugins
