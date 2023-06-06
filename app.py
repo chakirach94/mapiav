@@ -7,6 +7,29 @@ from folium.plugins import FloatImage
 import numpy as np
 from folium import plugins
 from folium.plugins import HeatMap
+import ee
+
+def getNLCD(year):
+    # Import the NLCD collection.
+    dataset = ee.ImageCollection("USGS/NLCD_RELEASES/2019_REL/NLCD")
+
+    # Filter the collection by year.
+    nlcd = dataset.filter(ee.Filter.eq("system:index", year)).first()
+
+    # Select the land cover band.
+    landcover = nlcd.select("landcover")
+    return landcover
+
+def getNDVI(year):
+    # Import the NLCD collection.
+    dataset = ee.ImageCollection("MODIS/MOD09GA_006_NDVI")
+
+    # Filter the collection by year.
+    ndvi = dataset.max()
+
+    # Select the land cover band.
+    myndvi = ndvi.select('NDVI')
+    return myndvi
 
 # Define a method for displaying Earth Engine image tiles on a folium map.
 def add_ee_layer(self, ee_object, vis_params, name):
@@ -68,15 +91,15 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('yourmap.html')
+    return render_template('index.html')
 
 @app.route('/map')
 def map():
     my_map=geemap.Map(
             basemap="HYBRID",
-            plugin_Draw=True,
-            Draw_export=True,
-            locate_control=True,
+            plugin_Draw=False,
+            Draw_export=False,
+            locate_control=False,
             plugin_LatLngPopup=False,
         )
 
@@ -132,13 +155,42 @@ def map():
     #fullscreen
     plugins.Fullscreen().add_to(my_map)
     HeatMap(data).add_to(folium.FeatureGroup(name='Heat Map').add_to(my_map))
-    folium.LayerControl().add_to(my_map)
 
-    
+    year="2013"
+    my_map.addLayer(getNLCD(year), {}, "NLCD " + year)
+    """my_map.addLayer(getNLCD(year), {}, "getjrc " + year)"""
+    legend_dict = {
+    '11 Open Water': '466b9f',
+    '12 Perennial Ice/Snow': 'd1def8',
+    '21 Developed, Open Space': 'dec5c5',
+    '22 Developed, Low Intensity': 'd99282',
+    '23 Developed, Medium Intensity': 'eb0000',
+    '24 Developed High Intensity': 'ab0000',
+    '31 Barren Land (Rock/Sand/Clay)': 'b3ac9f',
+    '41 Deciduous Forest': '68ab5f',
+    '42 Evergreen Forest': '1c5f2c',
+    '43 Mixed Forest': 'b5c58f',
+    '51 Dwarf Scrub': 'af963c',
+    '52 Shrub/Scrub': 'ccb879',
+    '71 Grassland/Herbaceous': 'dfdfc2',
+    '72 Sedge/Herbaceous': 'd1d182',
+    '73 Lichens': 'a3cc51',
+    '74 Moss': '82ba9e',
+    '81 Pasture/Hay': 'dcd939',
+    '82 Cultivated Crops': 'ab6c28',
+    '90 Woody Wetlands': 'b8d9eb',
+    '95 Emergent Herbaceous Wetlands': '6c9fb8',
+}
+    year="2013"
+    my_map.addLayer(getNDVI(year), {}, "NDVI " + year)
+
 
     url = 'https://www.zupimages.net/up/22/39/h8au.png'
-    my_map.save('templates/map.html')
-    return render_template('yourmap.html')
+    FloatImage(url, bottom=10, left=20).add_to(my_map)
+    folium.LayerControl().add_to(my_map)
+    my_map.save('templates/yourmap.html')
+
+    return render_template('index.html')
 
 
 
