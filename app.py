@@ -206,6 +206,18 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+@app.route('/2018')
+def index2018():
+    return render_template('2018.html')
+
+@app.route('/2019')
+def index2019():
+    return render_template('2019.html')
+
+@app.route('/2050')
+def index2050():
+    return render_template('2050.html')
+
 @app.route('/map')
 def map():
     my_map=geemap.Map(
@@ -305,19 +317,23 @@ def map():
 
     # Add the topography layer to the map with the "R" palette
     palette_r = ['0000FF', '00FF00', 'FF0000']  # Replace with your desired colors
-    my_map.addLayer(Factor_r(aoi,'2019-01-01','2019-12-31'), {'min': 0, 'max': 100, 'palette': palette_r}, "R")
+    
+    start_date='2018-01-01'
+    end_date='2018-12-31'
+
+    my_map.addLayer(Factor_r(aoi,start_date,end_date), {'min': 0, 'max': 100, 'palette': palette_r}, "R")
 
     # Add the topography layer to the map with the "R" palette
     palette_c = ["#FFFFFF", "#D9E6FF", "#A6C8FF", "#73AAFF", "#408CFF", "#0D6EFF", "#0058E6", "#003CB4", "#002782", "#001051"]  # Adjust the shades of blue as desired
-    my_map.addLayer(Factor_c(aoi,'2019-01-01','2019-12-31'), {'min': 0, 'max': 2, 'palette': palette_c}, "C")
+    my_map.addLayer(Factor_c(aoi,start_date,end_date), {'min': 0, 'max': 2, 'palette': palette_c}, "C")
 
      # Add the topography layer to the map with the "R" palette
     palette_k = ["#FFFFFF", "#D9E6FF", "#A6C8FF", "#73AAFF", "#408CFF", "#0D6EFF", "#0058E6", "#003CB4", "#002782", "#001051"]  # Adjust the shades of blue as desired
     my_map.addLayer(Factor_k(aoi), {'palette': palette_k}, "K")
 
      # Add the topography layer to the map with the "R" palette
-    palette_ru = ["#FFFFFF", "#D9E6FF", "#A6C8FF", "#73AAFF", "#408CFF", "#0D6EFF", "#0058E6", "#003CB4", "#002782", "#001051"]  # Adjust the shades of blue as desired
-    my_map.addLayer(ruslee(aoi,'2019-01-01','2019-12-31'), {'palette': palette_ru}, "RUSELE")
+    palette_ru = ["#FFFFFF", "#FFD9D9", "#FFA6A6", "#FF7373", "#FF4040", "#FF0D0D", "#E60000", "#B40000", "#820000", "#510000"]  # Adjust the shades of red as desired
+    my_map.addLayer(ruslee(aoi,start_date,end_date), {'min': 0, 'max': 200,'palette': palette_ru}, "RUSELE")
 
     
 
@@ -329,7 +345,7 @@ def map():
     folium.Map.add_ee_layer = add_ee_layer
     # TIFF image link
     
-    my_map.save('templates/yourmap.html')
+    my_map.save('templates/yourmap2018.html')
     print("hello")
     return render_template('index.html')
 
